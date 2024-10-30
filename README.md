@@ -9,7 +9,9 @@
 [![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=flat&logo=sqlite&logoColor=white)](https://www.sqlite.org/)
 [![Recharts](https://img.shields.io/badge/Recharts-61DAFB?style=flat&logo=react&logoColor=black)](https://recharts.org/)
 
-Dashboard para el seguimiento de la salud, diseñada para monitorear métricas personales de salud con una interfaz elegante.
+Dashboard para el seguimiento de la salud, diseñada para monitorear métricas personales de salud.
+
+![HealthFlow Dashboard](https://i.ibb.co/0syTfTx/hf.png)
 
 ## Quick setup
 
