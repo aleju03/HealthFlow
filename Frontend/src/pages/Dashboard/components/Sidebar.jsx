@@ -184,7 +184,7 @@ const Sidebar = () => {
                         className="text-left whitespace-nowrap overflow-hidden"
                       >
                         <p className="text-sm font-medium text-zinc-900">{user?.username || 'Usuario'}</p>
-                        <p className="text-sm text-zinc-500">{user?.email || 'correo@ejemplo.com'}</p>
+                        <p className="text-sm text-zinc-500">{user?.email}</p>
                       </motion.div>
                     )}
                   </AnimatePresence>
