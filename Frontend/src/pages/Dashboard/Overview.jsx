@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, ComposedChart, XAxis, YAxis, Bar } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, XAxis, YAxis, Bar, BarChart } from 'recharts';
 import { motion } from 'framer-motion';
 import { Activity, Weight, Ruler, Droplet, Footprints, Dumbbell, Heart } from 'lucide-react';
 import { api } from '../../lib/api';
@@ -30,12 +30,6 @@ const MetricCard = ({ title, value, unit, icon: Icon, color, description, height
             <p className="text-sm text-gray-500">{description}</p>
             {title === "Peso Actual" && height ? (
               <div className="pt-2 border-t border-gray-100">
-                <div className="flex items-center justify-between text-sm mt-2">
-                  <span className="text-gray-500">Peso ideal (IMC 22)</span>
-                  <span className={`text-${color}-500 font-medium`}>
-                    {Math.round(22 * Math.pow(height/100, 2))} kg
-                  </span>
-                </div>
                 <div className="flex items-center justify-between text-sm mt-2">
                   <span className="text-gray-500">Rango saludable</span>
                   <span className={`text-${color}-500 font-medium`}>
@@ -187,7 +181,6 @@ const WaterGlassChart = ({ consumed, total }) => {
 
 const StepsChart = ({ current, goal }) => {
   const circlePercentage = Math.min((current / goal) * 100, 100);
-  const actualPercentage = (current / goal) * 100;
   const isOverAchieved = current > goal;
   
   return (
@@ -268,7 +261,6 @@ const BodyCompositionChart = ({ data }) => {
 };
 
 const ExerciseChart = ({ exercises }) => {
-  // If no exercises, show empty state
   if (!exercises || exercises.length === 0) {
     return (
       <div className="relative h-[180px] flex items-center justify-center">
@@ -281,54 +273,38 @@ const ExerciseChart = ({ exercises }) => {
     );
   }
 
-  // Group exercises by time and type
-  const exerciseData = exercises.reduce((acc, exercise) => {
-    const hour = new Date(exercise.date).getHours();
-    const time = `${hour}:00`;
-    
-    if (!acc[time]) {
-      acc[time] = { time, cardio: 0, strength: 0, yoga: 0 };
-    }
-    
-    // Classify exercise type (you might want to adjust this based on your data)
-    const type = exercise.name.toLowerCase().includes('cardio') ? 'cardio' 
-               : exercise.name.toLowerCase().includes('yoga') ? 'yoga'
-               : 'strength';
-               
-    acc[time][type] += exercise.duration;
-    
-    return acc;
-  }, {});
+  const exerciseData = exercises.map(exercise => ({
+    name: exercise.name,
+    duration: exercise.duration
+  }));
 
   return (
     <div className="relative h-[180px] flex items-center justify-center">
       <ResponsiveContainer width="100%" height={180}>
-        <ComposedChart data={Object.values(exerciseData)}>
-          <XAxis dataKey="time" tick={{ fontSize: 12 }} />
+        <BarChart data={exerciseData}>
+          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
           <YAxis hide />
           <Tooltip
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 return (
                   <div className="bg-white p-2 rounded-lg shadow-lg border text-sm">
-                    <p className="font-medium text-gray-700">{payload[0].payload.time}</p>
-                    {payload.map((p, i) => (
-                      p.value > 0 && (
-                        <p key={i} style={{ color: p.color }}>
-                          {p.name}: {p.value} min
-                        </p>
-                      )
-                    ))}
+                    <p className="font-medium text-gray-700">{payload[0].payload.name}</p>
+                    <p style={{ color: payload[0].color }}>
+                      {payload[0].value} min
+                    </p>
                   </div>
                 );
               }
               return null;
             }}
           />
-          <Bar dataKey="strength" stackId="a" fill="#c084fc" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="cardio" stackId="a" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
-          <Bar dataKey="yoga" stackId="a" fill="#a78bfa" radius={[4, 4, 0, 0]} />
-        </ComposedChart>
+          <Bar 
+            dataKey="duration"
+            fill="#8b5cf6"
+            radius={[4, 4, 0, 0]}
+          />
+        </BarChart>
       </ResponsiveContainer>
     </div>
   );
@@ -589,8 +565,12 @@ const Overview = () => {
                 </div>
                 <div className="text-sm text-gray-500">
                   {stats.steps >= goals.steps_goal
-                    ? `${Math.round(stats.steps/1000)}k pasos`
-                    : `${Math.round(stats.steps/1000)}k/${Math.round(goals.steps_goal/1000)}k pasos`
+                    ? stats.steps >= 1000 
+                      ? `${Math.round(stats.steps/1000)}k pasos`
+                      : `${stats.steps} pasos`
+                    : stats.steps >= 1000
+                      ? `${Math.round(stats.steps/1000)}k/${Math.round(goals.steps_goal/1000)}k pasos`
+                      : `${stats.steps}/${Math.round(goals.steps_goal/1000)}k pasos`
                   }
                 </div>
               </div>
