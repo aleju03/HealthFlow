@@ -17,7 +17,6 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-// Nuevo componente para la redirección inicial
 const InitialRedirect = () => {
   const userId = localStorage.getItem('userId');
   return <Navigate to={userId ? "/dashboard" : "/login"} replace />;
@@ -43,7 +42,6 @@ function App() {
             <Route path="import" element={<ImportData />} />
             <Route path="profile" element={<Profile />} />
           </Route>
-          {/* Cambiar la ruta por defecto para usar el nuevo componente */}
           <Route path="*" element={<InitialRedirect />} />
         </Routes>
       </AuthProvider>

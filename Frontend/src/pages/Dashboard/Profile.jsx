@@ -16,7 +16,6 @@ const Profile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [activeSection, setActiveSection] = useState('personal');
 
   const [formData, setFormData] = useState({
@@ -47,25 +46,13 @@ const Profile = () => {
     setSuccess('');
   };
 
-  const togglePasswordSection = () => {
-    setShowPasswordSection(!showPasswordSection);
-    if (!showPasswordSection) {
-      setFormData(prev => ({
-        ...prev,
-        current_password: '',
-        new_password: '',
-        confirm_password: ''
-      }));
-    }
-  };
-
   const validateForm = () => {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       setError('El correo electrónico no es válido');
       return false;
     }
 
-    if (showPasswordSection) {
+    if (activeSection === 'security') {
       if (!formData.current_password) {
         setError('Debes ingresar tu contraseña actual para cambiarla');
         return false;
@@ -116,7 +103,7 @@ const Profile = () => {
         gender: formData.gender,
       };
 
-      if (showPasswordSection) {
+      if (activeSection === 'security') {
         updateData.current_password = formData.current_password;
         updateData.new_password = formData.new_password;
       }
@@ -216,10 +203,7 @@ const Profile = () => {
                     <Button 
                       variant="outline" 
                       className="w-full justify-start gap-2"
-                      onClick={() => {
-                        setActiveSection('security');
-                        setShowPasswordSection(true);
-                      }}
+                      onClick={() => setActiveSection('security')}
                     >
                       <Lock className="w-4 h-4" />
                       Cambiar Contraseña

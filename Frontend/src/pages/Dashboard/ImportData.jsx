@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { Card, CardContent } from "../../components/ui/card";
 import { Button } from "../../components/ui/button";
 import { Alert, AlertDescription } from "../../components/ui/alert";
 import { motion, AnimatePresence } from 'framer-motion';
+import ImportTypeCard from './components/import/ImportTypeCard';
+import DataPreviewTable from './components/import/DataPreviewTable';
 import { 
-  Upload, FileUp, ArrowRight, ArrowLeft, Check, AlertCircle,
+  Upload, ArrowRight, ArrowLeft, Check, AlertCircle,
   Ruler, Activity, Percent, Droplet, Footprints, Dumbbell,
   Weight
 } from 'lucide-react';
@@ -98,29 +99,24 @@ const ImportData = () => {
 
     const validateRow = (row, index) => {
       try {
-        // Obtener fecha de la primera columna
         const dateValue = Object.values(row)[0];
         if (!dateValue) {
           throw new Error(`Fila ${index + 1}: Fecha vacía`);
         }
 
-        // Normalizar fecha
         const normalizedDate = normalizeDate(dateValue);
 
-        // Validaciones específicas por tipo
         switch (type) {
           case 'weight': {
             const weight = parseFloat(Object.values(row)[1]);
             if (isNaN(weight)) throw new Error(`Fila ${index + 1}: Peso inválido`);
             return { date: normalizedDate, weight };
           }
-
           case 'height': {
             const height = parseFloat(Object.values(row)[1]);
             if (isNaN(height)) throw new Error(`Fila ${index + 1}: Altura inválida`);
             return { date: normalizedDate, height };
           }
-
           case 'body_composition': {
             const [, fat, muscle, water] = Object.values(row).map(parseFloat);
             if (isNaN(fat) || isNaN(muscle) || isNaN(water)) {
@@ -128,7 +124,6 @@ const ImportData = () => {
             }
             return { date: normalizedDate, fat, muscle, water };
           }
-
           case 'body_fat': {
             const fatPercentage = parseFloat(Object.values(row)[1]);
             if (isNaN(fatPercentage)) {
@@ -136,7 +131,6 @@ const ImportData = () => {
             }
             return { date: normalizedDate, fat_percentage: fatPercentage };
           }
-
           case 'water': {
             const waterAmount = parseInt(Object.values(row)[1]);
             if (isNaN(waterAmount)) {
@@ -144,7 +138,6 @@ const ImportData = () => {
             }
             return { date: normalizedDate, water_amount: waterAmount };
           }
-
           case 'steps': {
             const stepsAmount = parseInt(Object.values(row)[1]);
             if (isNaN(stepsAmount)) {
@@ -152,7 +145,6 @@ const ImportData = () => {
             }
             return { date: normalizedDate, steps_amount: stepsAmount };
           }
-
           case 'exercise': {
             const [, exerciseName, duration] = Object.values(row);
             const parsedDuration = parseInt(duration);
@@ -165,7 +157,6 @@ const ImportData = () => {
               duration: parsedDuration
             };
           }
-
           default:
             throw new Error('Tipo de datos no soportado');
         }
@@ -213,7 +204,6 @@ const ImportData = () => {
     setError('');
     
     try {
-      // Importar todos los tipos seleccionados en paralelo
       await Promise.all(
         Object.entries(parsedData).map(([type, data]) =>
           api.user.importData(user.id, type, data)
@@ -238,199 +228,9 @@ const ImportData = () => {
     setParsedData({});
     setSuccess('');
     setError('');
-    // reset file inputs
     document.querySelectorAll('input[type="file"]').forEach(input => {
       input.value = '';
     });
-  };
-
-  const renderStep = () => {
-    switch (step) {
-      case 1:
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {importTypes.map((type) => (
-                <motion.div
-                  key={type.value}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Card
-                    className={`transition-colors cursor-pointer ${
-                      selectedTypes.includes(type.value)
-                        ? 'bg-purple-50 border-purple-200'
-                        : 'hover:bg-gray-50'
-                    }`}
-                    onClick={() => handleTypeSelect(type.value)}
-                  >
-                    <CardContent className="p-6">
-                      <div className="space-y-4">
-                        {/* Header */}
-                        <div className="flex items-start gap-4">
-                          <div>{type.icon}</div>
-                          <div className="flex-1">
-                            <h3 className="font-medium text-gray-900">
-                              {type.label}
-                            </h3>
-                            <p className="text-sm text-gray-500 mt-1">
-                              {type.description}
-                            </p>
-                          </div>
-                          {selectedTypes.includes(type.value) && (
-                            <Check className="h-5 w-5 text-purple-600" />
-                          )}
-                        </div>
-
-                        {/* Upload Area - Solo visible si está seleccionado */}
-                        {selectedTypes.includes(type.value) && (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: 'auto' }}
-                            exit={{ opacity: 0, height: 0 }}
-                            className="pt-4 border-t border-gray-100"
-                          >
-                            {!files[type.value] ? (
-                              <div className="border-2 border-dashed border-gray-200 rounded-lg p-4"
-                                   onClick={(e) => e.stopPropagation()}
-                              >
-                                <div className="text-center">
-                                  <FileUp className="mx-auto h-8 w-8 text-gray-400" />
-                                  <div className="mt-2">
-                                    <label className="relative cursor-pointer rounded-md font-medium text-purple-600 hover:text-purple-500">
-                                      <span>Seleccionar archivo</span>
-                                      <input
-                                        type="file"
-                                        className="sr-only"
-                                        accept=".csv"
-                                        onChange={(e) => handleFileSelect(e, type.value)}
-                                      />
-                                    </label>
-                                  </div>
-                                  <p className="mt-1 text-xs text-gray-500">
-                                    Formato: {type.format}
-                                  </p>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="bg-green-50 rounded-lg p-3"
-                                   onClick={(e) => e.stopPropagation()}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex items-center gap-2">
-                                    <Check className="h-4 w-4 text-green-600" />
-                                    <div>
-                                      <p className="text-sm font-medium text-green-900 truncate">
-                                        {files[type.value].name}
-                                      </p>
-                                      <p className="text-xs text-green-700">
-                                        {parsedData[type.value]?.length || 0} registros
-                                      </p>
-                                    </div>
-                                  </div>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    onClick={() => {
-                                      setFiles(prev => {
-                                        const newFiles = { ...prev };
-                                        delete newFiles[type.value];
-                                        return newFiles;
-                                      });
-                                      setParsedData(prev => {
-                                        const newData = { ...prev };
-                                        delete newData[type.value];
-                                        return newData;
-                                      });
-                                    }}
-                                  >
-                                    Cambiar
-                                  </Button>
-                                </div>
-                              </div>
-                            )}
-                          </motion.div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        );
-
-      case 2:
-        return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
-            {Object.entries(parsedData).map(([type, data]) => (
-              <Card key={type}>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div>
-                          {importTypes.find(t => t.value === type)?.icon}
-                        </div>
-                        <h3 className="font-medium text-gray-900">
-                          {importTypes.find(t => t.value === type)?.label}
-                        </h3>
-                      </div>
-                      <span className="text-sm text-gray-500">
-                        {data.length} registros encontrados
-                      </span>
-                    </div>
-
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            {data[0] && 
-                              Object.keys(data[0]).map((header) => (
-                                <th
-                                  key={header}
-                                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                  {header}
-                                </th>
-                              ))}
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {data.slice(0, 3).map((row, i) => (
-                            <tr key={i}>
-                              {Object.values(row).map((value, j) => (
-                                <td
-                                  key={j}
-                                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
-                                >
-                                  {value}
-                                </td>
-                              ))}
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                      {data.length > 3 && (
-                        <div className="text-center text-sm text-gray-500 py-4 bg-gray-50">
-                          Mostrando 3 de {data.length} registros
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </motion.div>
-        );
-
-      default:
-        return null;
-    }
   };
 
   const handleError = (type, message) => {
@@ -448,6 +248,62 @@ const ImportData = () => {
     });
   };
 
+  const renderStep = () => {
+    switch (step) {
+      case 1:
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {importTypes.map((type) => (
+                <ImportTypeCard
+                  key={type.value}
+                  type={type}
+                  isSelected={selectedTypes.includes(type.value)}
+                  onSelect={() => handleTypeSelect(type.value)}
+                  file={files[type.value]}
+                  parsedData={parsedData[type.value]}
+                  onFileSelect={(e) => handleFileSelect(e, type.value)}
+                  onFileRemove={() => {
+                    setFiles(prev => {
+                      const newFiles = { ...prev };
+                      delete newFiles[type.value];
+                      return newFiles;
+                    });
+                    setParsedData(prev => {
+                      const newData = { ...prev };
+                      delete newData[type.value];
+                      return newData;
+                    });
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {Object.entries(parsedData).map(([type, data]) => (
+              <DataPreviewTable
+                key={type}
+                type={type}
+                data={data}
+                importTypes={importTypes}
+              />
+            ))}
+          </motion.div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -460,7 +316,7 @@ const ImportData = () => {
           </p>
         </div>
 
-        {/* Progress Steps - Ahora solo 2 pasos */}
+        {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center justify-between relative max-w-md mx-auto">
             <div className="absolute left-0 right-0 top-1/2 h-0.5 bg-gray-200 -z-10" />
