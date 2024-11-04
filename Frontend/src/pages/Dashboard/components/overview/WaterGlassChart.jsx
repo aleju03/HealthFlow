@@ -1,12 +1,10 @@
-import { motion } from 'framer-motion';
 import { Droplet } from 'lucide-react';
 
 const WaterGlassChart = ({ consumed, total }) => {
-  // Convertir vasos a mililitros (1 vaso = 250ml)
   const consumedML = consumed * 250;
   const fillPercentage = Math.min(Math.round((consumedML / total) * 100), 100);
   const actualPercentage = Math.round((consumedML / total) * 100);
-  const glassesConsumed = consumed;  // Ya está en vasos
+  const glassesConsumed = consumed;
   const glassesTotal = Math.ceil(total / 250);
   const isOverAchieved = consumedML > total;
   const MAX_VISIBLE_DROPLETS = 8;
@@ -32,19 +30,13 @@ const WaterGlassChart = ({ consumed, total }) => {
             />
 
             <g clipPath="url(#circleClip)">
-              <motion.rect
+              <rect
                 x="0"
-                y="0"
+                y={100 - fillPercentage}
                 width="100"
                 height="100"
                 fill={isOverAchieved ? "#22c55e" : "#3b82f6"}
                 fillOpacity="0.35"
-                initial={{ y: 100 }}
-                animate={{ y: 100 - fillPercentage }}
-                transition={{
-                  duration: 1,
-                  ease: "easeOut"
-                }}
               />
             </g>
 
@@ -67,16 +59,11 @@ const WaterGlassChart = ({ consumed, total }) => {
           {glassesConsumed > MAX_VISIBLE_DROPLETS ? (
             <>
               {Array.from({ length: 4 }).map((_, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                >
+                <div key={index}>
                   <Droplet 
                     className={`w-5 h-5 ${isOverAchieved ? 'text-green-500 fill-green-100' : 'text-blue-500 fill-blue-100'}`}
                   />
-                </motion.div>
+                </div>
               ))}
               <span className={`text-sm font-medium ${isOverAchieved ? 'text-green-600' : 'text-blue-600'}`}>
                 +{glassesConsumed - 4}
@@ -84,14 +71,9 @@ const WaterGlassChart = ({ consumed, total }) => {
             </>
           ) : (
             Array.from({ length: Math.max(glassesTotal, glassesConsumed) }).map((_, index) => (
-              <motion.div
-                key={index}
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: index * 0.1 }}
-              >
+              <div key={index}>
                 <Droplet 
-                  className={`w-5 h-5 transition-colors ${
+                  className={`w-5 h-5 ${
                     index < glassesConsumed
                       ? index >= glassesTotal 
                         ? 'text-green-500 fill-green-100'
@@ -99,7 +81,7 @@ const WaterGlassChart = ({ consumed, total }) => {
                       : 'text-gray-200'
                   }`}
                 />
-              </motion.div>
+              </div>
             ))
           )}
         </div>

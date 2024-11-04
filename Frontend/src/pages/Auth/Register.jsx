@@ -7,7 +7,6 @@ import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 import { Alert, AlertDescription } from '../../components/ui/alert';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Activity, ArrowRight, ArrowLeft, User, Mail, Lock, Weight, Ruler, Calendar, Users, Check } from 'lucide-react';
 
 const Register = () => {
@@ -116,12 +115,7 @@ const Register = () => {
     switch (step) {
       case 1:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             <CardHeader>
               <CardTitle className="text-2xl">Crear Cuenta</CardTitle>
               <CardDescription>Comencemos con tu información básica</CardDescription>
@@ -155,16 +149,11 @@ const Register = () => {
                 </div>
               </div>
             </CardContent>
-          </motion.div>
+          </div>
         );
-        case 2:
+      case 2:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             <CardHeader>
               <CardTitle className="text-2xl">Asegura Tu Cuenta</CardTitle>
               <CardDescription>Elige una contraseña segura</CardDescription>
@@ -199,16 +188,11 @@ const Register = () => {
                 </div>
               </div>
             </CardContent>
-          </motion.div>
+          </div>
         );
       case 3:
         return (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="space-y-4"
-          >
+          <div className="space-y-4">
             <CardHeader>
               <CardTitle className="text-2xl">Perfil de Salud</CardTitle>
               <CardDescription>Cuéntanos sobre ti</CardDescription>
@@ -276,7 +260,7 @@ const Register = () => {
                 </div>
               </div>
             </CardContent>
-          </motion.div>
+          </div>
         );
       default:
         return null;
@@ -285,30 +269,20 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-100 via-purple-50 to-white p-4">
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="flex items-center gap-2 mb-8"
-      >
+      <div className="flex items-center gap-2 mb-8">
         <Activity className="h-8 w-8 text-purple-600" />
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+        <h1 className="text-2xl font-bold text-purple-600">
           HealthFlow
         </h1>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="w-full max-w-md"
-      >
+      <div className="w-full max-w-md">
         <Card className="backdrop-blur-md bg-white/30 border border-purple-100">
           <div className="px-6 pt-6">
             <div className="flex justify-between items-center mb-8">
               {Array.from({ length: totalSteps }).map((_, index) => (
                 <React.Fragment key={index}>
-                  <motion.div
+                  <div
                     className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-200 ${
                       step > index + 1 
                         ? 'bg-purple-200 text-purple-700'
@@ -318,26 +292,16 @@ const Register = () => {
                     }`}
                   >
                     {step > index + 1 ? (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      >
-                        <Check className="w-4 h-4 text-purple-700" />
-                      </motion.div>
+                      <Check className="w-4 h-4 text-purple-700" />
                     ) : (
                       index + 1
                     )}
-                  </motion.div>
+                  </div>
                   {index < totalSteps - 1 && (
                     <div className="flex-1 h-1 mx-2 rounded-full bg-purple-100">
-                      <motion.div
+                      <div
                         className="h-full bg-purple-600 rounded-full"
-                        initial={{ width: '0%' }}
-                        animate={{
-                          width: step > index + 1 ? '100%' : '0%'
-                        }}
-                        transition={{ duration: 0.5 }}
+                        style={{ width: step > index + 1 ? '100%' : '0%' }}
                       />
                     </div>
                   )}
@@ -346,24 +310,18 @@ const Register = () => {
             </div>
           </div>
 
-          <AnimatePresence mode="wait">
-            {renderStep()}
-          </AnimatePresence>
+          {renderStep()}
 
           {error && (
-            <motion.div 
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="px-6"
-            >
+            <div className="px-6">
               <Alert variant="destructive" className="bg-red-50 border-red-200">
                 <AlertDescription className="text-red-600">{error}</AlertDescription>
               </Alert>
-            </motion.div>
+            </div>
           )}
 
           <CardFooter className="flex justify-between p-6">
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <div>
               <Button
                 variant="outline"
                 onClick={prevStep}
@@ -373,20 +331,17 @@ const Register = () => {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Atrás
               </Button>
-            </motion.div>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            </div>
+            <div>
               <Button
                 onClick={step === totalSteps ? handleSubmit : nextStep}
                 disabled={isLoading}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                className="bg-purple-600 hover:bg-purple-700 text-white"
               >
                 {isLoading ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  >
+                  <div>
                     <Activity className="h-5 w-5" />
-                  </motion.div>
+                  </div>
                 ) : (
                   <>
                     {step === totalSteps ? 'Completar' : 'Siguiente'}
@@ -394,16 +349,13 @@ const Register = () => {
                   </>
                 )}
               </Button>
-            </motion.div>
+            </div>
           </CardFooter>
         </Card>
-      </motion.div>
+      </div>
 
-      <motion.div 
+      <div 
         className="flex items-center gap-2 mt-8 text-sm text-purple-600"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
       >
         <span>¿Ya tienes una cuenta?</span>
         <Button 
@@ -413,7 +365,7 @@ const Register = () => {
         >
           Iniciar sesión
         </Button>
-      </motion.div>
+      </div>
     </div>
   );
 };

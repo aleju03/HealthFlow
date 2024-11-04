@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { Activity } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 const DailyGoalsCard = ({ activities }) => {
   return (
@@ -20,12 +19,10 @@ const DailyGoalsCard = ({ activities }) => {
               <span style={{ color: activity.color }}>{activity.progress}%</span>
             </div>
             <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${Math.min(activity.progress, 100)}%` }}
-                transition={{ duration: 1 }}
-                className="h-full rounded-full"
+              <div
+                className="h-full rounded-full transition-all duration-300"
                 style={{ 
+                  width: `${Math.min(activity.progress, 100)}%`,
                   backgroundColor: activity.progress > 100 ? '#22c55e' : activity.color
                 }}
               />

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { motion } from 'framer-motion';
 import { Activity, Weight, Ruler, Droplet, Footprints, Dumbbell } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -25,9 +24,9 @@ const Overview = () => {
 
   // Default goals
   const goals = {
-    water_goal: 2000, // ml
+    water_goal: 2000,
     steps_goal: 10000,
-    exercise_goal: 60 // minutes
+    exercise_goal: 60
   };
 
   useEffect(() => {
@@ -50,14 +49,9 @@ const Overview = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="h-[200px] flex items-center justify-center"
-          >
-            <Activity className="h-8 w-8 animate-spin text-purple-600" />
-          </motion.div>
+          <div className="h-[200px] flex items-center justify-center">
+            <Activity className="h-8 w-8 text-purple-600" />
+          </div>
         </div>
       </div>
     );
@@ -67,16 +61,10 @@ const Overview = () => {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
         <div className="max-w-7xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          </motion.div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         </div>
       </div>
     );
@@ -103,18 +91,14 @@ const Overview = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+        <div>
+          <h1 className="text-3xl font-bold text-purple-600">
             Panel General
           </h1>
           <p className="text-gray-500 mt-1">
             Resumen de tus métricas de salud actuales
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           <MetricCard

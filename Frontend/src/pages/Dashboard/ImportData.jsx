@@ -3,7 +3,6 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Button } from "../../components/ui/button";
 import { Alert, AlertDescription } from "../../components/ui/alert";
-import { motion, AnimatePresence } from 'framer-motion';
 import ImportTypeCard from './components/import/ImportTypeCard';
 import DataPreviewTable from './components/import/DataPreviewTable';
 import { 
@@ -283,11 +282,7 @@ const ImportData = () => {
 
       case 2:
         return (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-6"
-          >
+          <div className="space-y-6">
             {Object.entries(parsedData).map(([type, data]) => (
               <DataPreviewTable
                 key={type}
@@ -296,7 +291,7 @@ const ImportData = () => {
                 importTypes={importTypes}
               />
             ))}
-          </motion.div>
+          </div>
         );
 
       default:
@@ -308,7 +303,7 @@ const ImportData = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+          <h1 className="text-3xl font-bold text-purple-600">
             Importar Datos
           </h1>
           <p className="text-gray-500 mt-1">
@@ -347,42 +342,28 @@ const ImportData = () => {
         </div>
 
         {/* Main Content */}
-        <AnimatePresence mode="wait">
-          {renderStep()}
-        </AnimatePresence>
+        {renderStep()}
 
         {/* Error/Success Messages */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-6"
-            >
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
+        {error && (
+          <div className="mt-6">
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          </div>
+        )}
 
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mt-6"
-            >
-              <Alert className="border-green-200 bg-green-50">
-                <Check className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-600">
-                  {success}
-                </AlertDescription>
-              </Alert>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {success && (
+          <div className="mt-6">
+            <Alert className="border-green-200 bg-green-50">
+              <Check className="h-4 w-4 text-green-600" />
+              <AlertDescription className="text-green-600">
+                {success}
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="mt-6 flex justify-between">
@@ -402,7 +383,7 @@ const ImportData = () => {
                 (step === 1 && selectedTypes.length === 0) ||
                 (step === 2 && Object.keys(parsedData).length === 0)
               }
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
+              className="bg-purple-600 text-white hover:bg-purple-700"
             >
               Siguiente
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -411,10 +392,10 @@ const ImportData = () => {
             <Button
               onClick={handleImport}
               disabled={isLoading || Object.keys(parsedData).length === 0}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
+              className="bg-purple-600 text-white hover:bg-purple-700"
             >
               {isLoading ? (
-                <Upload className="h-4 w-4 animate-spin" />
+                <Upload className="h-4 w-4" />
               ) : (
                 <>
                   <Upload className="mr-2 h-4 w-4" />

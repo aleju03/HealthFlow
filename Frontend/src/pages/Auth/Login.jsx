@@ -6,7 +6,6 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Alert, AlertDescription } from '../../components/ui/alert';
-import { motion } from 'framer-motion';
 import { Activity, Heart, User, Lock, ArrowRight } from 'lucide-react';
 
 const Login = () => {
@@ -45,26 +44,19 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-100 via-purple-50 to-white p-4">
-      <motion.div
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+      <div
         className="flex items-center gap-2 mb-8"
       >
         <Activity className="h-8 w-8 text-purple-600" />
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+        <h1 className="text-2xl font-bold text-purple-600">
           HealthFlow
         </h1>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-      >
+      <div>
         <Card className="w-[380px] overflow-hidden backdrop-blur-md bg-white/30 border border-purple-100">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+            <CardTitle className="text-2xl text-center text-purple-600">
               Bienvenido de nuevo
             </CardTitle>
             <CardDescription className="text-center text-purple-600/80">
@@ -73,24 +65,15 @@ const Login = () => {
           </CardHeader>
           <CardContent>
             {success && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mb-4"
-              >
+              <div className="mb-4">
                 <Alert className="bg-green-50 border-green-200">
                   <AlertDescription className="text-green-600">{success}</AlertDescription>
                 </Alert>
-              </motion.div>
+              </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <motion.div 
-                className="space-y-4"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-              >
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-purple-700">Nombre de usuario</Label>
                   <div className="relative">
@@ -119,35 +102,25 @@ const Login = () => {
                     />
                   </div>
                 </div>
-              </motion.div>
+              </div>
 
               {error && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
+                <div>
                   <Alert variant="destructive" className="bg-red-50 border-red-200">
                     <AlertDescription className="text-red-600">{error}</AlertDescription>
                   </Alert>
-                </motion.div>
+                </div>
               )}
 
-              <motion.div
-                className="pt-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
+              <div className="pt-2">
                 <Button 
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                   disabled={isLoading}
                 >
                   {isLoading ? (
-                    <motion.div
-                      animate={{ rotate: 360 }}
-                      transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                    >
+                    <div>
                       <Activity className="h-5 w-5" />
-                    </motion.div>
+                    </div>
                   ) : (
                     <>
                       Iniciar sesión
@@ -155,7 +128,7 @@ const Login = () => {
                     </>
                   )}
                 </Button>
-              </motion.div>
+              </div>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4">
@@ -168,11 +141,7 @@ const Login = () => {
               </div>
             </div>
 
-            <motion.div 
-              className="w-full"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
+            <div>
               <Button 
                 variant="outline" 
                 className="w-full bg-white/50 hover:bg-white/60 transition-all duration-200"
@@ -180,20 +149,17 @@ const Login = () => {
               >
                 Crear cuenta
               </Button>
-            </motion.div>
+            </div>
           </CardFooter>
         </Card>
-      </motion.div>
+      </div>
 
-      <motion.div 
+      <div 
         className="flex gap-2 mt-8 text-purple-600 items-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
       >
         <Heart className="h-4 w-4 text-pink-500" />
         <span className="text-sm">Monitorea tu salud</span>
-      </motion.div>
+      </div>
     </div>
   );
 };

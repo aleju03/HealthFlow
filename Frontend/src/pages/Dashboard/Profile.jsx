@@ -47,11 +47,6 @@ const Profile = () => {
   };
 
   const validateForm = () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('El correo electrónico no es válido');
-      return false;
-    }
-
     if (activeSection === 'security') {
       if (!formData.current_password) {
         setError('Debes ingresar tu contraseña actual para cambiarla');
@@ -67,20 +62,10 @@ const Profile = () => {
         setError('Las contraseñas nuevas no coinciden');
         return false;
       }
-
-      if (!/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{10,}$/.test(formData.new_password)) {
-        setError('La contraseña debe tener al menos 10 caracteres e incluir letras, números y símbolos');
-        return false;
-      }
     }
 
     if (!formData.birthday) {
       setError('La fecha de nacimiento es requerida');
-      return false;
-    }
-
-    if (!formData.gender) {
-      setError('el género es requerido');
       return false;
     }
 
@@ -125,17 +110,17 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-purple-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header Section */}
         <div className="mb-8">
           <div className="flex items-center gap-x-8">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-3xl font-bold text-white">
+            <div className="w-24 h-24 rounded-full bg-purple-600 flex items-center justify-center text-3xl font-bold text-white">
               {user?.username ? user.username.charAt(0).toUpperCase() : '?'}
             </div>
             
             <div>
-              <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              <h1 className="text-3xl font-bold text-purple-600">
                 {user?.username || 'Usuario'}
               </h1>
               <p className="text-gray-500 mt-1">
@@ -347,7 +332,7 @@ const Profile = () => {
                 <Button 
                   onClick={handleSubmit}
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
                 >
                   {isLoading ? (
                     <Save className="h-4 w-4" />
