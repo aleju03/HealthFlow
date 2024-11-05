@@ -53,48 +53,64 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
 
 @app.put("/users/{user_id}", response_model=dict)
 def update_user(
-    user_id: int,
+    user_id: int,                   
     user_update: schemas.UserUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db)   
 ):
+    # 1. Verifica que el usuario existe
     db_user = crud.get_user(db, user_id)
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    # si quiere cambiar password, verificar el actual
+    # 2. Si quiere cambiar contraseña, verifica la actual
     if user_update.new_password:
         if not user_update.current_password:
-            raise HTTPException(status_code=400, detail="Contraseña actual requerida para cambiar contraseña")
+            raise HTTPException(
+                status_code=400, 
+                detail="Contraseña actual requerida para cambiar contraseña"
+            )
         if not crud.verify_password(user_update.current_password, db_user.password):
-            raise HTTPException(status_code=401, detail="Contraseña inválida")
+            raise HTTPException(
+                status_code=401, 
+                detail="Contraseña inválida"
+            )
     
-    # check if new email/username exists
+    # 3. Verifica que el nuevo email no esté en uso
     if user_update.email != db_user.email:
         if crud.get_user_by_email(db, user_update.email):
-            raise HTTPException(status_code=400, detail="Email ya registrado")
+            raise HTTPException(
+                status_code=400, 
+                detail="Email ya registrado"
+            )
     
+    # 4. Verifica que el nuevo username no esté en uso
     if user_update.username != db_user.username:
         if crud.get_user_by_username(db, user_update.username):
-            raise HTTPException(status_code=400, detail="Ya existe un usuario con ese nombre")
+            raise HTTPException(
+                status_code=400, 
+                detail="Ya existe un usuario con ese nombre"
+            )
     
-    # update user fields
+    # 5. Actualiza los campos
     db_user.email = user_update.email
     db_user.username = user_update.username
     db_user.birthday = user_update.birthday
     db_user.gender = user_update.gender
     
-    # handle password change if provided
+    # 6. Actualiza la contraseña si se proporcionó una nueva
     if user_update.new_password:
         db_user.password = user_update.new_password
     
+    # 7. Guarda los cambios
     db.commit()
     
-    # let frontend know if they need to force re-login
+    # 8. Verifica si cambiaron credenciales importantes
     credentials_changed = (
         user_update.username != db_user.username or 
         user_update.new_password is not None
     )
     
+    # 9. Retorna respuesta
     return {
         "message": "Perfil actualizado correctamente",
         "credentials_changed": credentials_changed
@@ -136,12 +152,12 @@ def get_history(
     period: str,
     db: Session = Depends(get_db)
 ):
+    # 1. Verifica que el usuario existe
     user = crud.get_user(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    # calculate start date based on period
-    end_date = datetime.now()
+    # 2. Define períodos válidos
     period_map = {
         "1w": timedelta(weeks=1),
         "1m": timedelta(days=30),
@@ -150,12 +166,16 @@ def get_history(
         "1y": timedelta(days=365)
     }
     
+    # 3. Valida el período
     if period not in period_map:
         raise HTTPException(status_code=400, detail="Período inválido")
     
+    # 4. Calcula fechas
+    end_date = datetime.now()
     start_date = end_date - period_map[period]
     
     try:
+        # 5. Obtiene el historial
         return crud.get_metric_history(db, user_id, metric, start_date)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
