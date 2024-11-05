@@ -119,19 +119,21 @@ def update_user(
 @app.post("/users/{user_id}/import")
 def import_data(
     user_id: int,
-    import_data: schemas.ImportData,
+    import_data: schemas.ImportData,  # Datos a importar
     db: Session = Depends(get_db)
 ):
+    # 1. Verifica que el usuario existe
     user = crud.get_user(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
     try:
+        # 2. Importa los datos usando crud
         crud.import_user_data(
             db=db,
             user_id=user_id,
-            import_type=import_data.import_type,
-            data=import_data.data
+            import_type=import_data.import_type,  # "weight", "steps", etc.
+            data=import_data.data                 # Lista de registros
         )
         return {"message": "Datos importados correctamente"}
     except ValueError as e:
