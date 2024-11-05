@@ -4,14 +4,13 @@ import { Activity } from 'lucide-react';
 const DailyGoalsCard = ({ activities }) => {
   return (
     <Card className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm z-0" />
-      <CardHeader className="relative z-10">
+      <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Activity className="h-5 w-5 text-purple-600" />
           Meta Diaria
         </CardTitle>
       </CardHeader>
-      <CardContent className="relative z-10 space-y-4">
+      <CardContent className="space-y-4">
         {activities.map(activity => (
           <div key={activity.name} className="space-y-2">
             <div className="flex justify-between text-sm">

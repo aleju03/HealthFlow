@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
   
   const navigate = useNavigate();
 
-  // efecto para cargar los detalles del usuario cuando tenemos un id
+  // effect para cargar los detalles del usuario cuando tenemos un id
   useEffect(() => {
     const fetchUserDetails = async () => {
       if (user?.id) {

@@ -47,7 +47,7 @@ export const api = {
   },
 
   user: {
-    // nuevo método para obtener detalles del usuario
+    // método para obtener detalles del usuario
     getDetails: async (userId) => {
       const response = await fetch(`${API_URL}/users/${userId}`);
       if (!response.ok) throw new Error('Error al obtener datos del usuario');

@@ -43,7 +43,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-purple-100 via-purple-50 to-white p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-purple-50 p-4">
       <div
         className="flex items-center gap-2 mb-8"
       >

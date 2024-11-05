@@ -48,6 +48,7 @@ def verify_password(password: str, stored_password: str):
 
 # data import operations
 def import_user_data(db: Session, user_id: int, import_type: str, data: List[Dict[str, Any]]):
+    # Mapeo de tipos de importación a modelos
     model_map = {
         "weight": models.Weight,
         "height": models.Height,
@@ -58,24 +59,29 @@ def import_user_data(db: Session, user_id: int, import_type: str, data: List[Dic
         "body_fat": models.BodyFatPercentage
     }
 
+    # Verifica que el tipo de importación sea válido
     if import_type not in model_map:
         raise ValueError("Invalid import type")
 
     model = model_map[import_type]
     
     for entry in data:
+        # Convierte la fecha de string a datetime
         entry['date'] = datetime.fromisoformat(entry['date'])
         entry['user_id'] = user_id
         
+        # Busca si ya existe un registro para esa fecha
         existing = db.query(model).filter(
             model.date == entry['date'],
             model.user_id == user_id
         ).first()
         
         if existing:
+            # Actualiza el registro existente
             for key, value in entry.items():
                 setattr(existing, key, value)
         else:
+            # Crea un nuevo registro
             db_entry = model(**entry)
             db.add(db_entry)
     

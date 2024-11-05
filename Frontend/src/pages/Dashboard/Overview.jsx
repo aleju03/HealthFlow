@@ -47,7 +47,7 @@ const Overview = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
+      <div className="min-h-screen bg-purple-50 p-8">
         <div className="max-w-7xl mx-auto">
           <div className="h-[200px] flex items-center justify-center">
             <Activity className="h-8 w-8 text-purple-600" />
@@ -59,7 +59,7 @@ const Overview = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
+      <div className="min-h-screen bg-purple-50 p-8">
         <div className="max-w-7xl mx-auto">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -89,7 +89,7 @@ const Overview = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
+    <div className="min-h-screen bg-purple-50 p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <div>
           <h1 className="text-3xl font-bold text-purple-600">

@@ -8,8 +8,7 @@ const ActivityCard = ({
   children 
 }) => (
   <Card className="relative overflow-hidden">
-    <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm z-0" />
-    <CardContent className="p-6 relative z-10">
+    <CardContent className="p-6">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className={`p-2 rounded-xl ${iconColor}`}>

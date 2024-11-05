@@ -170,12 +170,14 @@ const ImportData = () => {
   const handleTypeSelect = (type) => {
     setSelectedTypes(prev => {
       if (prev.includes(type)) {
+        // Si el tipo ya está seleccionado, lo remueve
         return prev.filter(t => t !== type);
       }
+      // Si el tipo no está seleccionado, lo añade
       return [...prev, type];
     });
-    setError('');
-  };
+    setError(''); // Limpia cualquier error previo
+};
 
   const handleFileSelect = async (event, type) => {
     const file = event.target.files[0];
@@ -300,7 +302,7 @@ const ImportData = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-purple-50">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-purple-600">

@@ -2,8 +2,7 @@ import { Card, CardContent } from "../../../../components/ui/card";
 
 const MetricCard = ({ title, value, unit, icon: Icon, color, description, height }) => (
   <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300">
-    <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm z-0" />
-    <CardContent className="p-6 relative z-10">
+    <CardContent className="p-6">
       <div className="flex items-center gap-3 mb-4">
         <div className={`p-2 rounded-xl bg-${color}-50 text-${color}-500`}>
           <Icon className="h-5 w-5" />
