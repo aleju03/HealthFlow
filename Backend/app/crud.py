@@ -111,10 +111,15 @@ def get_current_stats(db: Session, user_id: int):
     ).all()
     total_steps = sum(steps.steps_amount for steps in today_steps)
 
-    # filter for today’s exercises
-    today_exercises = db.query(models.Exercise).filter(
+    # filter for today's exercises and group them
+    today_exercises = db.query(
+        models.Exercise.exercise_name,
+        func.sum(models.Exercise.duration).label('total_duration')
+    ).filter(
         models.Exercise.user_id == user_id,
         func.date(models.Exercise.date) == today
+    ).group_by(
+        models.Exercise.exercise_name
     ).all()
 
     current_fat = db.query(models.BodyFatPercentage).filter(
@@ -139,7 +144,7 @@ def get_current_stats(db: Session, user_id: int):
         "water_consumed": total_water,  # sum of today's water intake
         "steps": total_steps,  # sum of today's steps
         "exercises": [
-            {"name": ex.exercise_name, "duration": ex.duration}
+            {"name": ex.exercise_name, "duration": int(ex.total_duration)}
             for ex in today_exercises
         ]
     }
@@ -183,43 +188,91 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         return [{"date": row.date, "value": float(row.value or 0)} for row in data]
 
     elif metric_type == "water":
+        # Agregación diaria de agua
         query = db.query(
-            models.WaterConsumption.date,
-            models.WaterConsumption.water_amount.label('total')
+            func.date(models.WaterConsumption.date).label('date'),
+            func.sum(models.WaterConsumption.water_amount).label('value')
         ).filter(
             models.WaterConsumption.user_id == user_id,
             models.WaterConsumption.date >= start_date
-        ).order_by(models.WaterConsumption.date)
+        ).group_by(
+            func.date(models.WaterConsumption.date)
+        ).order_by(
+            func.date(models.WaterConsumption.date)
+        )
         
         data = query.all()
-        return [{"date": row.date, "total": float(row.total or 0)} for row in data]
+        
+        # Asegurarnos de que total no sea None
+        total = db.query(
+            func.coalesce(func.sum(models.WaterConsumption.water_amount), 0.0)
+        ).filter(
+            models.WaterConsumption.user_id == user_id,
+            models.WaterConsumption.date >= start_date
+        ).scalar()
+        
+        return {
+            "data": [{"date": row.date, "value": float(row.value or 0)} for row in data],
+            "total": float(total)
+        }
 
     elif metric_type == "steps":
+        # Agregación diaria de pasos
         query = db.query(
-            models.DailySteps.date,
-            models.DailySteps.steps_amount.label('total')
+            func.date(models.DailySteps.date).label('date'),
+            func.sum(models.DailySteps.steps_amount).label('value')
         ).filter(
             models.DailySteps.user_id == user_id,
             models.DailySteps.date >= start_date
-        ).order_by(models.DailySteps.date)
+        ).group_by(
+            func.date(models.DailySteps.date)
+        ).order_by(
+            func.date(models.DailySteps.date)
+        )
         
         data = query.all()
-        return [{"date": row.date, "total": float(row.total or 0)} for row in data]
+        
+        # Asegurarnos de que total no sea None
+        total = db.query(
+            func.coalesce(func.sum(models.DailySteps.steps_amount), 0.0)
+        ).filter(
+            models.DailySteps.user_id == user_id,
+            models.DailySteps.date >= start_date
+        ).scalar()
+        
+        return {
+            "data": [{"date": row.date, "value": float(row.value or 0)} for row in data],
+            "total": float(total)
+        }
 
     elif metric_type == "exercise":
+        # Agregación diaria de ejercicios
         query = db.query(
-            models.Exercise.date,
-            models.Exercise.duration.label('duration')
+            func.date(models.Exercise.date).label('date'),
+            func.sum(models.Exercise.duration).label('value')
         ).filter(
             models.Exercise.user_id == user_id,
             models.Exercise.date >= start_date
-        ).order_by(models.Exercise.date)
+        ).group_by(
+            func.date(models.Exercise.date)
+        ).order_by(
+            func.date(models.Exercise.date)
+        )
         
         data = query.all()
-        return [{
-            "date": row.date, 
-            "duration": float(row.duration or 0)
-        } for row in data]
+        
+        # Asegurarnos de que total no sea None
+        total = db.query(
+            func.coalesce(func.sum(models.Exercise.duration), 0.0)
+        ).filter(
+            models.Exercise.user_id == user_id,
+            models.Exercise.date >= start_date
+        ).scalar()
+        
+        return {
+            "data": [{"date": row.date, "value": float(row.value or 0)} for row in data],
+            "total": float(total)
+        }
 
     else:
         raise ValueError("Invalid metric type")

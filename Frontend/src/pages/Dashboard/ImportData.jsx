@@ -399,7 +399,10 @@ const ImportData = () => {
             <Button
               onClick={() => setStep((prev) => prev + 1)}
               disabled={
-                (step === 1 && selectedTypes.length === 0) ||
+                (step === 1 && (
+                  selectedTypes.length === 0 || 
+                  !selectedTypes.every(type => parsedData[type])
+                )) ||
                 (step === 2 && Object.keys(parsedData).length === 0)
               }
               className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700"

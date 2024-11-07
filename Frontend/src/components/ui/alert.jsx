@@ -1,4 +1,4 @@
-//todos estos archivos de components/ui son de shadcn
+//todos estos archivos de components/ui son de shadcn, pero ajustados para javascript
 //shadcn es una colección de componentes reutilizables hechos con tailwind css
 //https://ui.shadcn.com/docs/components/
 import * as React from "react"

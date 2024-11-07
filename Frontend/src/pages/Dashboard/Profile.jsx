@@ -202,11 +202,11 @@ const Profile = () => {
                   <div className="mt-4 space-y-3">
                     <Button 
                       variant="outline" 
-                      className="w-full justify-start gap-2"
+                      className="w-full justify-start gap-2 text-sm"
                       onClick={() => setActiveSection('security')}
                     >
-                      <Lock className="w-4 h-4" />
-                      Cambiar Contraseña
+                      <Lock className="w-4 h-4 flex-shrink-0" />
+                      <span className="truncate">Cambiar Contraseña</span>
                     </Button>
                     <Button 
                       variant="outline" 

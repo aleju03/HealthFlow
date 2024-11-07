@@ -112,6 +112,8 @@ const MetricCard = ({ title, current, previous, unit, icon: Icon, color, metricI
   }
 
   // Para métricas de medición
+  const isZeroValue = Number(current) === 0 && Number(previous) === 0;
+
   return (
     <div className="flex flex-col p-4 bg-white rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-2">
@@ -119,25 +121,35 @@ const MetricCard = ({ title, current, previous, unit, icon: Icon, color, metricI
           <Icon className={`h-5 w-5`} style={{ color }} />
           <span className="text-gray-600 font-medium">{title}</span>
         </div>
-        <div className={`flex items-center gap-1 text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-          {change >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-          <span>{changePercent.toFixed(1)}%</span>
-        </div>
+        {!isZeroValue && (
+          <div className={`flex items-center gap-1 text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+            {change >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
+            <span>{changePercent.toFixed(1)}%</span>
+          </div>
+        )}
       </div>
       
       <div className="flex flex-col">
-        <div className="flex items-baseline gap-1">
-          <span className="text-2xl font-bold">{formatValue(current)}</span>
-          <span className="text-sm text-gray-500">{unit}</span>
-        </div>
-        
-        <div className="text-sm text-gray-500 mt-1">
-          {change >= 0 ? 'Incremento' : 'Reducción'} de {formatValue(Math.abs(change))} {unit}
-          <br />
-          <span className="text-xs">
-            Desde {formatValue(previous)} {unit}
-          </span>
-        </div>
+        {isZeroValue ? (
+          <div className="flex flex-col items-center justify-center py-2">
+            <span className="text-gray-400 text-sm">Sin datos en este período</span>
+          </div>
+        ) : (
+          <>
+            <div className="flex items-baseline gap-1">
+              <span className="text-2xl font-bold">{formatValue(current)}</span>
+              <span className="text-sm text-gray-500">{unit}</span>
+            </div>
+            
+            <div className="text-sm text-gray-500 mt-1">
+              {change >= 0 ? 'Incremento' : 'Reducción'} de {formatValue(Math.abs(change))} {unit}
+              <br />
+              <span className="text-xs">
+                Desde {formatValue(previous)} {unit}
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
@@ -177,21 +189,28 @@ const Historical = () => {
       setError(null);
       try {
         const metricsToFetch = view === 'overview' 
-          ? metrics // En vista general, cargar todo
-          : metrics.filter(m => // En vista detallada, solo las métricas seleccionadas o todas si no hay selección
+          ? metrics 
+          : metrics.filter(m => 
               selectedMetrics.length === 0 || selectedMetrics.includes(m.id)
             );
         
         const results = {};
         const promises = metricsToFetch
-          // Solo hacer fetch de métricas que no estén ya cargadas para el período actual
-          .filter(metric => !loadedMetrics.has(`${metric.id}-${selectedPeriod}`))
           .map(metric => 
             api.user.getHistory(user.id, metric.id, selectedPeriod)
               .then(result => {
-                results[metric.id] = result;
-                // Marcar esta métrica como cargada para este período
-                setLoadedMetrics(prev => new Set([...prev, `${metric.id}-${selectedPeriod}`]));
+                if (metric.id === 'water' || metric.id === 'steps' || metric.id === 'exercise') {
+                    if (!result || !result.data) {
+                        throw new Error(`Invalid response format for ${metric.id}`);
+                    }
+                    results[metric.id] = result.data;
+                    results[`${metric.id}_total`] = result.total;
+                } else {
+                    results[metric.id] = result;
+                }
+              })
+              .catch(err => {
+                throw err;
               })
           );
         
@@ -200,7 +219,14 @@ const Historical = () => {
         // Formatear los nuevos datos
         const formattedResults = {};
         Object.entries(results).forEach(([metricId, data]) => {
+          if (!data) {
+              return;
+          }
+
           const formatDate = (dateStr) => {
+            if (!dateStr) {
+              return '';
+            }
             const date = new Date(dateStr);
             return date.toLocaleDateString('es-ES', {
               day: 'numeric',
@@ -209,37 +235,42 @@ const Historical = () => {
             });
           };
 
-          if (metricId === 'water') {
-            formattedResults[metricId] = data.map(item => ({
-              date: formatDate(item.date),
-              value: item.total || 0,
-              liters: ((item.total || 0) * 0.25).toFixed(2)
-            }));
-          } else if (metricId === 'exercise') {
-            formattedResults[metricId] = data.map(item => ({
-              date: formatDate(item.date),
-              value: item.duration || 0
-            }));
-          } else if (metricId === 'steps') {
-            formattedResults[metricId] = data.map(item => ({
-              date: formatDate(item.date),
-              value: item.total || 0
-            }));
-          } else {
-            formattedResults[metricId] = data.map(item => ({
-              date: formatDate(item.date),
-              value: item.value || 0
-            }));
+          // Solo procesar si el metricId no termina en '_total'
+          if (!metricId.endsWith('_total')) {
+              if (metricId === 'water' || metricId === 'steps' || metricId === 'exercise') {
+                  formattedResults[metricId] = data.map(item => ({
+                      date: formatDate(item.date),
+                      value: Number(item.value) || 0
+                  }));
+                  // Mantener el total
+                  formattedResults[`${metricId}_total`] = results[`${metricId}_total`];
+              } else {
+                  formattedResults[metricId] = data.map(item => ({
+                      date: formatDate(item.date),
+                      value: Number(item.value) || 0
+                  }));
+              }
           }
         });
 
         // Actualizar el estado combinando los datos existentes con los nuevos
-        setData(prev => ({
-          ...prev,
-          ...formattedResults
-        }));
+        setData(prev => {
+          const newData = {
+            ...prev,
+            ...formattedResults
+          };
+          return newData;
+        });
+
+        // Marcar las métricas como cargadas
+        const newLoadedMetrics = new Set();
+        metricsToFetch.forEach(metric => {
+          newLoadedMetrics.add(`${metric.id}-${selectedPeriod}`);
+        });
+        setLoadedMetrics(newLoadedMetrics);
+
       } catch (err) {
-        setError('Error al cargar los datos históricos');
+        setError(`Error al cargar los datos históricos: ${err.message}`);
       } finally {
         setLoading(false);
       }
@@ -251,6 +282,7 @@ const Historical = () => {
   // Limpiar datos cargados cuando cambia el período
   useEffect(() => {
     setLoadedMetrics(new Set());
+    setData({});
   }, [selectedPeriod]);
 
   const getMetricStats = (metricData, metricId) => {
@@ -258,15 +290,15 @@ const Historical = () => {
 
     // Para métricas acumulativas (pasos, agua, ejercicio)
     if (metricId === 'steps' || metricId === 'water' || metricId === 'exercise') {
-      const totalValue = metricData.reduce((sum, item) => sum + item.value, 0);
-      const daysInPeriod = metricData.length;
-      const dailyAverage = daysInPeriod > 0 ? Math.round(totalValue / daysInPeriod) : 0;
-      
-      return {
-        current: dailyAverage,
-        previous: dailyAverage,
-        total: totalValue
-      };
+        const totalValue = data[`${metricId}_total`];
+        const daysInPeriod = metricData.length || 1; // Asegurar que no dividimos por 0
+        const dailyAverage = totalValue ? Math.round(totalValue / daysInPeriod) : 0;
+        
+        return {
+            current: dailyAverage,
+            previous: dailyAverage,
+            total: totalValue || 0
+        };
     }
     
     // Para métricas de medición (peso, músculo, grasa)
@@ -312,6 +344,26 @@ const Historical = () => {
 
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Progress Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:col-span-2">
+          {metrics.map(metric => {
+            const stats = getMetricStats(data[metric.id], metric.id);
+            return (
+              <MetricCard
+                key={metric.id}
+                title={metric.title}
+                current={stats.current}
+                previous={stats.previous}
+                total={stats.total}
+                unit={metric.unit}
+                icon={metric.icon}
+                color={metric.color}
+                metricId={metric.id}
+              />
+            );
+          })}
+        </div>
+
         {/* Composite Chart - Weight & Muscle */}
         <Card className="lg:col-span-2">
           <CardHeader>
@@ -382,26 +434,6 @@ const Historical = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Progress Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:col-span-2">
-          {metrics.map(metric => {
-            const stats = getMetricStats(data[metric.id], metric.id);
-            return (
-              <MetricCard
-                key={metric.id}
-                title={metric.title}
-                current={stats.current}
-                previous={stats.previous}
-                total={stats.total}
-                unit={metric.unit}
-                icon={metric.icon}
-                color={metric.color}
-                metricId={metric.id}
-              />
-            );
-          })}
-        </div>
 
         {/* Body Composition Chart */}
         <Card>
@@ -806,8 +838,7 @@ const Historical = () => {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  {view === 'overview' && renderOverview()}
-                  {view === 'detailed' && renderDetailed()}
+                  {view === 'overview' ? renderOverview() : renderDetailed()}
                 </motion.div>
               )}
             </AnimatePresence>

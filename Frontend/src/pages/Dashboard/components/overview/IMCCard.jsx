@@ -1,7 +1,7 @@
 import { Card, CardContent } from "../../../../components/ui/card";
 import { Heart } from 'lucide-react';
 
-const IMCCard = ({ value }) => {
+const IMCCard = ({ value, className }) => {
   const getIMCCategory = (imc) => {
     if (imc < 18.5) return { label: 'Delgadez', color: 'text-yellow-500' };
     if (imc < 25) return { label: 'Saludable', color: 'text-green-500' };
@@ -13,7 +13,7 @@ const IMCCard = ({ value }) => {
   const position = ((value - 15) / (40 - 15)) * 100;
 
   return (
-    <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300">
+    <Card className={`relative overflow-hidden group hover:shadow-lg transition-all duration-300 ${className}`}>
       <div className="absolute inset-0 bg-gradient-to-br from-white/50 to-white/30 backdrop-blur-sm z-0" />
       <CardContent className="p-6 relative z-10">
         <div className="flex items-center gap-3 mb-4">

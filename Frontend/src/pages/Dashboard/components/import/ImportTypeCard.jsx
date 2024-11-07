@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Card, CardContent } from "../../../../components/ui/card";
 import { Button } from "../../../../components/ui/button";
 import { Check, Upload } from 'lucide-react';
@@ -45,10 +44,7 @@ const ImportTypeCard = ({
   };
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-    >
+    <div>
       <Card
         className={`transition-colors cursor-pointer ${
           isSelected ? 'bg-purple-50 border-purple-200' : 'hover:bg-gray-50'
@@ -69,12 +65,7 @@ const ImportTypeCard = ({
 
             {/* Upload Area with Drag & Drop */}
             {isSelected && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="pt-4 border-t border-gray-100"
-              >
+              <div className="pt-4 border-t border-gray-100">
                 {!file ? (
                   <div
                     className={`border-2 border-dashed rounded-lg p-4 transition-colors ${
@@ -133,12 +124,12 @@ const ImportTypeCard = ({
                     </div>
                   </div>
                 )}
-              </motion.div>
+              </div>
             )}
           </div>
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   );
 };
 

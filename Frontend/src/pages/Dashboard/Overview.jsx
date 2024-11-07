@@ -134,7 +134,10 @@ const Overview = () => {
             color="cyan"
             description="Tu altura actual"
           />
-          <IMCCard value={stats.bmi} />
+          <IMCCard 
+            value={stats.bmi} 
+            className="md:col-span-2 lg:col-span-1"
+          />
 
           {stats.body_composition && (
             <Card className="md:col-span-2 relative overflow-hidden">
@@ -170,12 +173,8 @@ const Overview = () => {
             icon={Footprints}
             iconColor="bg-green-50 text-green-500"
             value={stats.steps >= goals.steps_goal
-              ? stats.steps >= 1000 
-                ? `${Math.round(stats.steps/1000)}k pasos`
-                : `${stats.steps} pasos`
-              : stats.steps >= 1000
-                ? `${Math.round(stats.steps/1000)}k/${Math.round(goals.steps_goal/1000)}k pasos`
-                : `${stats.steps}/${Math.round(goals.steps_goal/1000)}k pasos`
+              ? `${(stats.steps/1000).toFixed(1)}k pasos`
+              : `${(stats.steps/1000).toFixed(1)}k/${(goals.steps_goal/1000).toFixed(1)}k pasos`
             }
           >
             <StepsChart current={stats.steps} goal={goals.steps_goal} />

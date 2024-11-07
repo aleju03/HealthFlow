@@ -156,6 +156,14 @@ def get_history(
     start_date = end_date - period_map[period]
     
     try:
-        return crud.get_metric_history(db, user_id, metric, start_date)
+        result = crud.get_metric_history(db, user_id, metric, start_date)
+        
+        # Para métricas acumulativas, devolver el total también
+        if metric in ["water", "steps", "exercise"]:
+            return {
+                "data": result["data"],
+                "total": result["total"]
+            }
+        return result
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
