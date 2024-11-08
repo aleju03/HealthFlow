@@ -61,7 +61,7 @@ def update_user(
     if not db_user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     
-    # si quiere cambiar password, verificar el actual
+    # if changing password, verify current password
     if user_update.new_password:
         if not user_update.current_password:
             raise HTTPException(status_code=400, detail="Contraseña actual requerida para cambiar contraseña")
@@ -158,7 +158,7 @@ def get_history(
     try:
         result = crud.get_metric_history(db, user_id, metric, start_date)
         
-        # Para métricas acumulativas, devolver el total también
+        # For cumulative metrics, return total as well
         if metric in ["water", "steps", "exercise"]:
             return {
                 "data": result["data"],

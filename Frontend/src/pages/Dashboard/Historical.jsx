@@ -125,8 +125,7 @@ const Historical = () => {
               }
             }
           });
-
-          // Update cache with formatted data
+          // Actualizar caché con datos formateados
           setCachedData(prev => ({
             ...prev,
             [selectedPeriod]: {
@@ -135,7 +134,7 @@ const Historical = () => {
             }
           }));
 
-          // Use formattedResults instead of raw results
+          // Usar formattedResults en lugar de resultados sin procesar
           setData({
             ...cachedData[selectedPeriod],
             ...formattedResults

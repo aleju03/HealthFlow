@@ -188,7 +188,7 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         return [{"date": row.date, "value": float(row.value or 0)} for row in data]
 
     elif metric_type == "water":
-        # Agregación diaria de agua
+        # Daily water aggregation
         query = db.query(
             func.date(models.WaterConsumption.date).label('date'),
             func.sum(models.WaterConsumption.water_amount).label('value')
@@ -203,7 +203,7 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         
         data = query.all()
         
-        # Asegurarnos de que total no sea None
+        # Make sure total is not None
         total = db.query(
             func.coalesce(func.sum(models.WaterConsumption.water_amount), 0.0)
         ).filter(
@@ -217,7 +217,7 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         }
 
     elif metric_type == "steps":
-        # Agregación diaria de pasos
+        # Daily steps aggregation
         query = db.query(
             func.date(models.DailySteps.date).label('date'),
             func.sum(models.DailySteps.steps_amount).label('value')
@@ -232,7 +232,7 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         
         data = query.all()
         
-        # Asegurarnos de que total no sea None
+        # Make sure total is not None
         total = db.query(
             func.coalesce(func.sum(models.DailySteps.steps_amount), 0.0)
         ).filter(
@@ -246,7 +246,7 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         }
 
     elif metric_type == "exercise":
-        # Agregación diaria de ejercicios
+        # Daily exercise aggregation
         query = db.query(
             func.date(models.Exercise.date).label('date'),
             func.sum(models.Exercise.duration).label('value')
@@ -261,7 +261,7 @@ def get_metric_history(db: Session, user_id: int, metric_type: str, start_date: 
         
         data = query.all()
         
-        # Asegurarnos de que total no sea None
+        # Make sure total is not None
         total = db.query(
             func.coalesce(func.sum(models.Exercise.duration), 0.0)
         ).filter(

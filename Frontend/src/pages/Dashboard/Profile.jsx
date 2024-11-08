@@ -103,6 +103,8 @@ const Profile = () => {
         gender: formData.gender,
       };
 
+      const usernameChanged = formData.username !== user.username;
+
       if (activeSection === 'security') {
         updateData.current_password = formData.current_password;
         updateData.new_password = formData.new_password;
@@ -110,9 +112,15 @@ const Profile = () => {
 
       const response = await api.user.updateProfile(user.id, updateData);
       
-      setSuccess('Perfil actualizado correctamente');
-      
       if (response.credentials_changed) {
+        setSuccess('Contraseña actualizada. Cerrando sesión...');
+      } else if (usernameChanged) {
+        setSuccess('Nombre de usuario actualizado. Cerrando sesión...');
+      } else {
+        setSuccess('Perfil actualizado correctamente');
+      }
+      
+      if (response.credentials_changed || usernameChanged) {
         setTimeout(() => {
           logout();
         }, 2000);
