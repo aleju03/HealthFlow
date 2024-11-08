@@ -48,13 +48,13 @@ const Overview = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8">
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 p-8 flex items-center justify-center">
         <div className="max-w-7xl mx-auto">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="h-[200px] flex items-center justify-center"
+            className="flex items-center justify-center"
           >
             <Activity className="h-8 w-8 animate-spin text-purple-600" />
           </motion.div>
@@ -172,9 +172,9 @@ const Overview = () => {
             title="Pasos"
             icon={Footprints}
             iconColor="bg-green-50 text-green-500"
-            value={stats.steps >= goals.steps_goal
-              ? `${(stats.steps/1000).toFixed(1)}k pasos`
-              : `${(stats.steps/1000).toFixed(1)}k/${(goals.steps_goal/1000).toFixed(1)}k pasos`
+            value={
+              (stats.steps >= 1000 ? `${(stats.steps / 1000).toFixed(1).replace('.0', '')}k` : stats.steps) +
+              (stats.steps >= goals.steps_goal ? ' pasos' : `/${(goals.steps_goal / 1000).toFixed(1).replace('.0', '')}k pasos`)
             }
           >
             <StepsChart current={stats.steps} goal={goals.steps_goal} />

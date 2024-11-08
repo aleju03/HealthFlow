@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { Button } from '../../components/ui/button';
 import { Alert, AlertDescription } from '../../components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { 
   LineChart, Line, AreaChart, Area,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  ComposedChart, Legend
+  XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Activity, Calendar, AlertCircle,
-  TrendingUp, TrendingDown, 
   LineChart as LineChartIcon, 
   Layout,
   Weight,
@@ -21,139 +18,14 @@ import {
   Percent,
   Droplet,
   Footprints,
-  Timer
+  Timer,
+  LayoutGrid,
+  LayoutList
 } from 'lucide-react';
-
-const NoDataMessage = () => (
-  <div className="h-full w-full flex items-center justify-center">
-    <p className="text-gray-500 text-sm">No hay datos para mostrar en este período</p>
-  </div>
-);
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (!active || !payload || !payload.length) return null;
-  
-  return (
-    <div className="bg-white p-3 rounded-lg shadow-lg border border-gray-200">
-      <p className="text-gray-600 font-medium mb-2">{label}</p>
-      {payload.map((entry, index) => {
-        let value = entry.value;
-        let unit = '';
-
-        if (entry.name === 'Vasos') {
-          value = Math.floor(Number(value));
-          unit = 'vasos';
-        } else if (entry.name === 'Litros') {
-          value = Number(value).toFixed(2);
-          unit = 'L';
-        } else if (entry.name === 'Agua') {
-          value = (Number(value) * 0.25).toFixed(2);
-          unit = 'L';
-        } else if (entry.name === 'Pasos') {
-          value = Math.floor(Number(value)).toLocaleString();
-          unit = 'pasos';
-        } else if (entry.name === 'Ejercicios') {
-          value = Math.floor(Number(value));
-          unit = 'min';
-        } else {
-          value = Number(value).toFixed(1);
-          unit = entry.unit || '';
-        }
-        
-        return (
-          <p key={index} className="text-sm" style={{ color: entry.color }}>
-            {entry.name}: {value} {unit}
-          </p>
-        );
-      })}
-    </div>
-  );
-};
-
-const MetricCard = ({ title, current, previous, unit, icon: Icon, color, metricId, total }) => {
-  const change = Number(current) - Number(previous);
-  const changePercent = Number(previous) !== 0 ? ((change / Number(previous)) * 100) : 0;
-  
-  const formatValue = (value) => {
-    const numValue = Number(value);
-    if (isNaN(numValue)) return '0';
-    
-    if (unit === 'pasos') return numValue.toLocaleString();
-    if (unit === 'vasos') return numValue.toLocaleString();
-    if (unit === 'min') return Math.floor(numValue);
-    return numValue.toFixed(1);
-  };
-
-  // Para métricas acumulativas
-  if (metricId === 'steps' || metricId === 'water' || metricId === 'exercise') {
-    return (
-      <div className="flex flex-col p-4 bg-white rounded-lg shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Icon className={`h-5 w-5`} style={{ color }} />
-            <span className="text-gray-600 font-medium">{title}</span>
-          </div>
-        </div>
-        
-        <div className="flex flex-col">
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold">{formatValue(current)}</span>
-            <span className="text-sm text-gray-500">{unit}/día</span>
-          </div>
-          
-          <div className="text-sm text-gray-500 mt-1">
-            <span className="text-xs font-medium">
-              Total del período: {formatValue(total)} {unit}
-            </span>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Para métricas de medición
-  const isZeroValue = Number(current) === 0 && Number(previous) === 0;
-
-  return (
-    <div className="flex flex-col p-4 bg-white rounded-lg shadow-sm">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <Icon className={`h-5 w-5`} style={{ color }} />
-          <span className="text-gray-600 font-medium">{title}</span>
-        </div>
-        {!isZeroValue && (
-          <div className={`flex items-center gap-1 text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {change >= 0 ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
-            <span>{changePercent.toFixed(1)}%</span>
-          </div>
-        )}
-      </div>
-      
-      <div className="flex flex-col">
-        {isZeroValue ? (
-          <div className="flex flex-col items-center justify-center py-2">
-            <span className="text-gray-400 text-sm">Sin datos en este período</span>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-bold">{formatValue(current)}</span>
-              <span className="text-sm text-gray-500">{unit}</span>
-            </div>
-            
-            <div className="text-sm text-gray-500 mt-1">
-              {change >= 0 ? 'Incremento' : 'Reducción'} de {formatValue(Math.abs(change))} {unit}
-              <br />
-              <span className="text-xs">
-                Desde {formatValue(previous)} {unit}
-              </span>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-};
+import CustomTooltip from './components/historical/CustomTooltip';
+import MetricCard from './components/historical/MetricCard';
+import ChartCard from './components/historical/ChartCard';
+import PeriodInsights from './components/historical/PeriodInsights';
 
 const Historical = () => {
   const { user } = useAuth();
@@ -173,7 +45,10 @@ const Historical = () => {
   const [data, setData] = useState({});
   const [view, setView] = useState('overview');
   const [selectedMetrics, setSelectedMetrics] = useState([]);
-  const [loadedMetrics, setLoadedMetrics] = useState(new Set());
+  const [gridView, setGridView] = useState(false);
+
+  // Modificar el estado de caché para guardar por métrica y período
+  const [cachedData, setCachedData] = useState({}); // { period: { metricId: data } }
 
   const periods = [
     { value: '1w', label: '1 Semana' },
@@ -188,14 +63,16 @@ const Historical = () => {
       setLoading(true);
       setError(null);
       try {
+        // Determinar qué métricas necesitamos cargar
         const metricsToFetch = view === 'overview' 
-          ? metrics 
-          : metrics.filter(m => 
-              selectedMetrics.length === 0 || selectedMetrics.includes(m.id)
-            );
-        
+          ? metrics // En vista general, necesitamos todas
+          : selectedMetrics.length === 0 
+            ? metrics // Si no hay filtros, necesitamos todas
+            : metrics.filter(m => selectedMetrics.includes(m.id)); // Solo las métricas filtradas
+
         const results = {};
         const promises = metricsToFetch
+          .filter(metric => !cachedData[selectedPeriod]?.[metric.id]) // Solo fetch si no está en caché
           .map(metric => 
             api.user.getHistory(user.id, metric.id, selectedPeriod)
               .then(result => {
@@ -214,19 +91,11 @@ const Historical = () => {
               })
           );
         
-        await Promise.all(promises);
-        
-        // Formatear los nuevos datos
-        const formattedResults = {};
-        Object.entries(results).forEach(([metricId, data]) => {
-          if (!data) {
-              return;
-          }
-
+        if (promises.length > 0) {
+          await Promise.all(promises);
+          
           const formatDate = (dateStr) => {
-            if (!dateStr) {
-              return '';
-            }
+            if (!dateStr) return '';
             const date = new Date(dateStr);
             return date.toLocaleDateString('es-ES', {
               day: 'numeric',
@@ -235,39 +104,43 @@ const Historical = () => {
             });
           };
 
-          // Solo procesar si el metricId no termina en '_total'
-          if (!metricId.endsWith('_total')) {
+          const formattedResults = {};
+          Object.entries(results).forEach(([metricId, data]) => {
+            if (!data) {
+              return;
+            }
+
+            if (!metricId.endsWith('_total')) {
               if (metricId === 'water' || metricId === 'steps' || metricId === 'exercise') {
-                  formattedResults[metricId] = data.map(item => ({
-                      date: formatDate(item.date),
-                      value: Number(item.value) || 0
-                  }));
-                  // Mantener el total
-                  formattedResults[`${metricId}_total`] = results[`${metricId}_total`];
+                formattedResults[metricId] = data.map(item => ({
+                  date: formatDate(item.date),
+                  value: Number(item.value) || 0
+                }));
+                formattedResults[`${metricId}_total`] = results[`${metricId}_total`];
               } else {
-                  formattedResults[metricId] = data.map(item => ({
-                      date: formatDate(item.date),
-                      value: Number(item.value) || 0
-                  }));
+                formattedResults[metricId] = data.map(item => ({
+                  date: formatDate(item.date),
+                  value: Number(item.value) || 0
+                }));
               }
-          }
-        });
+            }
+          });
 
-        // Actualizar el estado combinando los datos existentes con los nuevos
-        setData(prev => {
-          const newData = {
+          // Update cache with formatted data
+          setCachedData(prev => ({
             ...prev,
-            ...formattedResults
-          };
-          return newData;
-        });
+            [selectedPeriod]: {
+              ...prev[selectedPeriod],
+              ...formattedResults
+            }
+          }));
 
-        // Marcar las métricas como cargadas
-        const newLoadedMetrics = new Set();
-        metricsToFetch.forEach(metric => {
-          newLoadedMetrics.add(`${metric.id}-${selectedPeriod}`);
-        });
-        setLoadedMetrics(newLoadedMetrics);
+          // Use formattedResults instead of raw results
+          setData({
+            ...cachedData[selectedPeriod],
+            ...formattedResults
+          });
+        }
 
       } catch (err) {
         setError(`Error al cargar los datos históricos: ${err.message}`);
@@ -277,12 +150,11 @@ const Historical = () => {
     };
 
     fetchData();
-  }, [user.id, selectedPeriod, view, selectedMetrics]);
+  }, [user.id, selectedPeriod, view, selectedMetrics]); // Necesitamos estas dependencias para determinar qué cargar
 
-  // Limpiar datos cargados cuando cambia el período
+  // Limpiar caché cuando cambia el período
   useEffect(() => {
-    setLoadedMetrics(new Set());
-    setData({});
+    setCachedData({});
   }, [selectedPeriod]);
 
   const getMetricStats = (metricData, metricId) => {
@@ -308,44 +180,10 @@ const Historical = () => {
   };
 
   const renderOverview = () => {
-    const combinedData = data.weight?.map((item, index) => ({
-      date: item.date,
-      "Peso": item.value,
-      "Músculo": data.muscle?.[index]?.value
-    })) || [];
-
-    // Preparar datos para el gráfico de composición corporal
-    const bodyCompositionData = data.muscle?.map((item, index) => {
-      const muscleValue = item.value || 0;
-      const fatValue = data.fat_percentage?.[index]?.value || 0;
-
-      return {
-        date: item.date,
-        "Músculo": muscleValue,
-        "Grasa": fatValue
-      };
-    }) || [];
-
-    // Preparar datos para el gráfico de ejercicios
-    const exerciseData = data.exercise?.reduce((acc, item) => {
-      const date = item.date.split('/')[1] + '/' + item.date.split('/')[2]; // Mes/Año
-      const existingEntry = acc.find(entry => entry.date === date);
-      
-      if (existingEntry) {
-        existingEntry.total += item.value;
-      } else {
-        acc.push({
-          date,
-          total: item.value
-        });
-      }
-      return acc;
-    }, []) || [];
-
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Progress Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:col-span-2">
+      <div className="space-y-8">
+        {/* Metric Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {metrics.map(metric => {
             const stats = getMetricStats(data[metric.id], metric.id);
             return (
@@ -364,349 +202,190 @@ const Historical = () => {
           })}
         </div>
 
-        {/* Composite Chart - Weight & Muscle */}
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Peso y Músculo</span>
-              <Legend />
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[400px]">
-              {combinedData.length === 0 ? (
-                <NoDataMessage />
-              ) : (
-                <ResponsiveContainer>
-                  <ComposedChart data={combinedData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis 
-                      dataKey="date"
-                      tick={{ fill: '#6b7280' }}
-                      tickLine={{ stroke: '#6b7280' }}
-                    />
-                    <YAxis 
-                      yAxisId="left"
-                      label={{ 
-                        value: 'Peso (kg)', 
-                        angle: -90, 
-                        position: 'insideLeft',
-                        style: { fill: '#6366f1' }
-                      }}
-                      tick={{ fill: '#6b7280' }}
-                      tickLine={{ stroke: '#6b7280' }}
-                    />
-                    <YAxis 
-                      yAxisId="right" 
-                      orientation="right"
-                      label={{ 
-                        value: 'Músculo (kg)', 
-                        angle: 90, 
-                        position: 'insideRight',
-                        style: { fill: '#06b6d4' }
-                      }}
-                      tick={{ fill: '#6b7280' }}
-                      tickLine={{ stroke: '#6b7280' }}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="Peso"
-                      fill="#6366f1"
-                      stroke="#6366f1"
-                      fillOpacity={0.1}
-                      dot={false}
-                      activeDot={{ fill: '#6366f1', stroke: '#6366f1', r: 4 }}
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="Músculo"
-                      stroke="#06b6d4"
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ fill: '#06b6d4', stroke: '#06b6d4', r: 4 }}
-                    />
-                  </ComposedChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Body Composition Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Composición Corporal (%)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              {bodyCompositionData.length === 0 ? (
-                <NoDataMessage />
-              ) : (
-                <ResponsiveContainer>
-                  <AreaChart data={bodyCompositionData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" />
-                    <YAxis 
-                      tickFormatter={value => `${Math.round(value)}%`}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area
-                      type="monotone"
-                      dataKey="Músculo"
-                      stackId="1"
-                      stroke="#06b6d4"
-                      fill="#06b6d4"
-                      fillOpacity={0.6}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="Grasa"
-                      stackId="1"
-                      stroke="#f43f5e"
-                      fill="#f43f5e"
-                      fillOpacity={0.6}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Exercise Summary Chart */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tiempo de Ejercicio por Período</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              {exerciseData.length === 0 ? (
-                <NoDataMessage />
-              ) : (
-                <ResponsiveContainer>
-                  <AreaChart data={exerciseData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" />
-                    <YAxis 
-                      label={{ 
-                        value: 'Minutos totales', 
-                        angle: -90, 
-                        position: 'insideLeft',
-                        style: { fill: '#8b5cf6' }
-                      }}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area
-                      type="monotone"
-                      dataKey="total"
-                      name="Ejercicios"
-                      stroke="#8b5cf6"
-                      fill="#8b5cf6"
-                      fillOpacity={0.2}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Period Insights */}
+        <PeriodInsights data={data} metrics={metrics} />
       </div>
     );
   };
 
   const renderDetailedMetric = (metric) => {
+    // Verificar si tenemos datos para esta métrica
+    if (!data[metric.id]) {
+      return (
+        <ChartCard
+          key={metric.id}
+          title={metric.title}
+          icon={metric.icon}
+          iconColor={metric.color}
+          data={[]} // Pasamos array vacío para mostrar el mensaje de no datos
+          headerExtra={
+            <div className="text-sm font-normal text-gray-500">
+              No hay datos para mostrar
+            </div>
+          }
+        />
+      );
+    }
+
     if (metric.id === 'water') {
       return (
-        <Card key={metric.id}>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <metric.icon className="h-5 w-5" style={{ color: metric.color }} />
-                <span>{metric.title}</span>
-              </div>
-              <div className="text-sm font-normal text-gray-500">
-                {data[metric.id]?.length ? (
-                  <>
-                    Último registro: {Math.floor(data[metric.id][data[metric.id].length - 1].value)} vasos 
-                    ({(data[metric.id][data[metric.id].length - 1].value * 0.25).toFixed(2)}L)
-                  </>
-                ) : (
-                  'No hay datos para mostrar'
-                )}
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              {!data[metric.id]?.length ? (
-                <NoDataMessage />
+        <ChartCard
+          key={metric.id}
+          title={metric.title}
+          icon={metric.icon}
+          iconColor={metric.color}
+          data={data[metric.id]}
+          headerExtra={
+            <div className="text-sm font-normal text-gray-500">
+              {data[metric.id]?.length ? (
+                <>
+                  Último registro: {Math.floor(data[metric.id][data[metric.id].length - 1].value)} vasos 
+                  ({(data[metric.id][data[metric.id].length - 1].value * 0.25).toFixed(2)}L)
+                </>
               ) : (
-                <ResponsiveContainer>
-                  <LineChart data={data[metric.id].map(item => ({
-                    date: item.date,
-                    "Vasos": Math.floor(item.value),
-                    "Litros": item.value * 0.25
-                  }))}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" />
-                    <YAxis 
-                      yAxisId="left"
-                      label={{ 
-                        value: 'Vasos', 
-                        angle: -90, 
-                        position: 'insideLeft',
-                        style: { fill: metric.color }
-                      }}
-                      tickFormatter={value => Math.floor(value)}
-                    />
-                    <YAxis 
-                      yAxisId="right"
-                      orientation="right"
-                      label={{ 
-                        value: 'Litros', 
-                        angle: 90, 
-                        position: 'insideRight',
-                        style: { fill: '#60a5fa' }
-                      }}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line
-                      yAxisId="left"
-                      type="monotone"
-                      dataKey="Vasos"
-                      stroke={metric.color}
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ fill: metric.color, stroke: metric.color, r: 4 }}
-                    />
-                    <Line
-                      yAxisId="right"
-                      type="monotone"
-                      dataKey="Litros"
-                      stroke="#60a5fa"
-                      strokeWidth={2}
-                      dot={false}
-                      activeDot={{ fill: '#60a5fa', stroke: '#60a5fa', r: 4 }}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                'No hay datos para mostrar'
               )}
             </div>
-          </CardContent>
-        </Card>
+          }
+        >
+          <LineChart data={data[metric.id].map(item => ({
+            date: item.date,
+            "Vasos": Math.floor(item.value),
+            "Litros": item.value * 0.25
+          }))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="date" />
+            <YAxis 
+              yAxisId="left"
+              label={{ 
+                value: 'Vasos', 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { fill: metric.color }
+              }}
+              tickFormatter={value => Math.floor(value)}
+            />
+            <YAxis 
+              yAxisId="right"
+              orientation="right"
+              label={{ 
+                value: 'Litros', 
+                angle: 90, 
+                position: 'insideRight',
+                style: { fill: '#60a5fa' }
+              }}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="Vasos"
+              stroke={metric.color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ fill: metric.color, stroke: metric.color, r: 4 }}
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="Litros"
+              stroke="#60a5fa"
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ fill: '#60a5fa', stroke: '#60a5fa', r: 4 }}
+            />
+          </LineChart>
+        </ChartCard>
       );
     }
 
     // Para ejercicios, usamos AreaChart
     if (metric.id === 'exercise') {
       return (
-        <Card key={metric.id}>
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <metric.icon className="h-5 w-5" style={{ color: metric.color }} />
-                <span>{metric.title}</span>
-              </div>
-              <div className="text-sm font-normal text-gray-500">
-                {data[metric.id]?.length ? 
-                  `Último valor: ${data[metric.id][data[metric.id].length - 1].value.toLocaleString()} ${metric.unit}` :
-                  'No hay datos para mostrar'
-                }
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              {!data[metric.id]?.length ? (
-                <NoDataMessage />
-              ) : (
-                <ResponsiveContainer>
-                  <AreaChart data={data[metric.id]}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" />
-                    <YAxis 
-                      label={{ 
-                        value: `${metric.title} (${metric.unit})`, 
-                        angle: -90, 
-                        position: 'insideLeft',
-                        style: { fill: metric.color }
-                      }}
-                      tickFormatter={value => Math.floor(value)}
-                    />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area
-                      type="monotone"
-                      dataKey="value"
-                      stroke={metric.color}
-                      fill={metric.color}
-                      fillOpacity={0.2}
-                      name={metric.title}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-      );
-    }
-
-    // Para el resto de métricas, mantenemos el LineChart
-    return (
-      <Card key={metric.id}>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <metric.icon className="h-5 w-5" style={{ color: metric.color }} />
-              <span>{metric.title}</span>
-            </div>
+        <ChartCard
+          key={metric.id}
+          title={metric.title}
+          icon={metric.icon}
+          iconColor={metric.color}
+          data={data[metric.id]}
+          headerExtra={
             <div className="text-sm font-normal text-gray-500">
               {data[metric.id]?.length ? 
                 `Último valor: ${data[metric.id][data[metric.id].length - 1].value.toLocaleString()} ${metric.unit}` :
                 'No hay datos para mostrar'
               }
             </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            {!data[metric.id]?.length ? (
-              <NoDataMessage />
-            ) : (
-              <ResponsiveContainer>
-                <LineChart data={data[metric.id]}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" />
-                  <YAxis 
-                    label={metric.id !== 'steps' ? { 
-                      value: `${metric.title} (${metric.unit})`, 
-                      angle: -90, 
-                      position: 'insideLeft',
-                      style: { fill: metric.color }
-                    } : undefined}
-                    tickFormatter={value => 
-                      metric.id === 'steps' ? value.toLocaleString() : value.toFixed(1)
-                    }
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke={metric.color}
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ fill: metric.color, stroke: metric.color, r: 4 }}
-                    name={metric.title}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
+          }
+        >
+          <AreaChart data={data[metric.id]}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+            <XAxis dataKey="date" />
+            <YAxis 
+              label={{ 
+                value: `${metric.title} (${metric.unit})`, 
+                angle: -90, 
+                position: 'insideLeft',
+                style: { fill: metric.color }
+              }}
+              tickFormatter={value => Math.floor(value)}
+            />
+            <Tooltip content={<CustomTooltip />} />
+            <Area
+              type="monotone"
+              dataKey="value"
+              stroke={metric.color}
+              fill={metric.color}
+              fillOpacity={0.2}
+              name={metric.title}
+            />
+          </AreaChart>
+        </ChartCard>
+      );
+    }
+
+    // Para el resto de métricas, mantenemos el LineChart
+    return (
+      <ChartCard
+        key={metric.id}
+        title={metric.title}
+        icon={metric.icon}
+        iconColor={metric.color}
+        data={data[metric.id]}
+        headerExtra={
+          <div className="text-sm font-normal text-gray-500">
+            {data[metric.id]?.length ? 
+              `Último valor: ${data[metric.id][data[metric.id].length - 1].value.toLocaleString()} ${metric.unit}` :
+              'No hay datos para mostrar'
+            }
           </div>
-        </CardContent>
-      </Card>
+        }
+      >
+        <LineChart data={data[metric.id]}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis dataKey="date" />
+          <YAxis 
+            label={metric.id !== 'steps' ? { 
+              value: `${metric.title} (${metric.unit})`, 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { fill: metric.color }
+            } : undefined}
+            tickFormatter={value => 
+              metric.id === 'steps' ? value.toLocaleString() : value.toFixed(1)
+            }
+          />
+          <Tooltip content={<CustomTooltip />} />
+          <Line
+            type="monotone"
+            dataKey="value"
+            stroke={metric.color}
+            strokeWidth={2}
+            dot={false}
+            activeDot={{ fill: metric.color, stroke: metric.color, r: 4 }}
+            name={metric.title}
+          />
+        </LineChart>
+      </ChartCard>
     );
   };
 
@@ -717,37 +396,58 @@ const Historical = () => {
 
     return (
       <div className="space-y-6">
-        <div className="flex flex-wrap gap-4 items-center text-sm">
-          <span className="text-gray-500 font-medium">Filtrar:</span>
-          {metrics.map(metric => (
-            <label
-              key={metric.id}
-              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-md transition-colors"
-            >
-              <input
-                type="checkbox"
-                checked={selectedMetrics.includes(metric.id)}
-                onChange={() => {
-                  setSelectedMetrics(prev => 
-                    prev.includes(metric.id)
-                      ? prev.filter(id => id !== metric.id)
-                      : [...prev, metric.id]
-                  );
-                }}
-                className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
-              />
-              <div className="flex items-center gap-2">
-                <div 
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: metric.color }}
+        <div className="flex flex-wrap gap-4 items-center justify-between">
+          <div className="flex flex-wrap gap-4 items-center text-sm">
+            <span className="text-gray-500 font-medium">Filtrar:</span>
+            {metrics.map(metric => (
+              <label
+                key={metric.id}
+                className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-md transition-colors"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedMetrics.includes(metric.id)}
+                  onChange={() => {
+                    setSelectedMetrics(prev => 
+                      prev.includes(metric.id)
+                        ? prev.filter(id => id !== metric.id)
+                        : [...prev, metric.id]
+                    );
+                  }}
+                  className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
                 />
-                {metric.title}
-              </div>
-            </label>
-          ))}
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-2 h-2 rounded-full"
+                    style={{ backgroundColor: metric.color }}
+                  />
+                  {metric.title}
+                </div>
+              </label>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant={!gridView ? "default" : "outline"}
+              size="icon"
+              onClick={() => setGridView(false)}
+              className="h-8 w-8"
+            >
+              <LayoutList className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={gridView ? "default" : "outline"}
+              size="icon"
+              onClick={() => setGridView(true)}
+              className="h-8 w-8"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-6">
+        <div className={`grid grid-cols-1 ${gridView ? 'lg:grid-cols-2' : ''} gap-6`}>
           {metricsToShow.map(metric => renderDetailedMetric(metric))}
         </div>
       </div>

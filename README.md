@@ -1,4 +1,4 @@
-# <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg> HealthFlow
+HealthFlow
 
 [![Made with React](https://img.shields.io/badge/Made%20with-React-61dafb.svg)](https://reactjs.org)
 [![Vite](https://img.shields.io/badge/vite-%23646CFF.svg?style=flat&logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -11,7 +11,7 @@
 
 Dashboard para el seguimiento de la salud, diseñada para monitorear métricas personales de salud.
 
-![HealthFlow Dashboard](https://i.ibb.co/0syTfTx/hf.png)
+![HealthFlow Dashboard prototype](https://i.ibb.co/0syTfTx/hf.png)
 
 ## Quick setup
 
