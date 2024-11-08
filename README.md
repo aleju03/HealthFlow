@@ -11,8 +11,6 @@
 
 Dashboard para el seguimiento de la salud, diseñada para monitorear métricas personales de salud.
 
-![HealthFlow Dashboard prototype](https://i.ibb.co/0syTfTx/hf.png)
-
 ## Quick setup
 
 ### Backend
