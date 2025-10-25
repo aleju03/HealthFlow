@@ -32,3 +32,8 @@ uvicorn app.main:app --reload
 npm install
 npm run dev
 ```
+<img width="1873" height="927" alt="image" src="https://github.com/user-attachments/assets/d554d460-b28f-42bb-ae28-55b04a112fa3" />
+<img width="1863" height="930" alt="image" src="https://github.com/user-attachments/assets/d99c3f07-af61-40b1-a0b2-667f6fd4f04a" />
+<img width="1842" height="928" alt="image" src="https://github.com/user-attachments/assets/a6cb33d5-298a-4583-a5ef-2fecf1561744" />
+<img width="1870" height="930" alt="image" src="https://github.com/user-attachments/assets/b9b2cf7d-9185-4c87-92f3-e2f15cc419cd" />
+<img width="1862" height="921" alt="image" src="https://github.com/user-attachments/assets/0a503eec-c15a-4ab7-9dd5-bc1976529d8d" />
